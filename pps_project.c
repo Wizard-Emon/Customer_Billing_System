@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+// For items
 struct items
 {
     char item_one[50];
     float price;
     int quantity;
 };
+//For order details
 struct orders
 {
     char customer[50];
@@ -14,6 +16,7 @@ struct orders
     int itemNum;
     struct items item[50];
 };
+// This is for showing the bill details
 void showBillDetails(char name[100], char date[50])
 {
     printf("\n\n");
@@ -29,6 +32,7 @@ void showBillDetails(char name[100], char date[50])
     printf("\n------------------------------------------------\n");
     printf("\n\n");
 }
+// Bill Body
 void showBillBody(char item[50], int quantity, float price)
 {
     printf("%s\t\t", item);
@@ -36,6 +40,7 @@ void showBillBody(char item[50], int quantity, float price)
     printf("%.2f\t\t", quantity * price);
     printf("\n");
 }
+//End body of the bill
 void endBillDetails(float total)
 {
     printf("\n");
@@ -48,6 +53,7 @@ void endBillDetails(float total)
 }
 int main()
 {
+
     int option, numberOfItems;
     float total, total_2 = 0;
     char saveBill = 'y', continue_again = 'y';
@@ -55,7 +61,7 @@ int main()
     char name[50];
     struct orders order;
     struct orders order_b;
-    // Dashboard
+    //This is Dashboard
     while (continue_again == 'y')
     {
         float total = 0;
