@@ -42,63 +42,143 @@ void endBillDetails(float total)
     float discount = 0.1 * total;
     float netTotal = total - discount;
     printf("Sub Total = \t\t\t%.2f", total);
-    printf("\nDiscount @10%s\t\t\t%.2f", "%", discount);
+    printf("\nDiscount 10%s\t\t\t%.2f", "%", discount);
     printf("\n\t\t\t\t----------");
     printf("\nNet Total\t\t\t%.2f", netTotal);
 }
 int main()
 {
     int option, numberOfItems;
-    float total;
+    float total, total_2 = 0;
+    char saveBill = 'y', continue_again = 'y';
+    FILE *file;
+    char name[50];
     struct orders order;
+    struct orders order_b;
     // Dashboard
-    printf("\t============  Resturant X. =============");
-    printf("Select Your prefered operation : ");
-
-    printf("\n1. Generate Invoices");
-    printf("\n2. Show all invoices");
-    printf("\n3. Search Invoices");
-    printf("\n4. Exit\n\n");
-    printf(" Choose : ");
-    scanf("%d", &option);
-    fgetc(stdin);
-    switch (option)
+    while (continue_again == 'y')
     {
-    case 1:
-        printf("\nPlease Enter the name of the customer : ");
-        fgets(order.customer, 50, stdin);
-        order.customer[strlen(order.customer) - 1] = 0;
-        strcpy(order.date, __DATE__);
-        printf("\nPlease Enter the number of items : \n");
-        scanf("%d", &numberOfItems);
-        order.itemNum = numberOfItems;
-        for (int i = 0; i < numberOfItems; i++)
+        float total = 0;
+        int invoceFound = 0;
+        printf("\t============  Resturant X. =============");
+        printf("Select Your prefered operation : ");
+
+        printf("\n1. Generate Invoices");
+        printf("\n2. Show all invoices");
+        printf("\n3. Search Invoices");
+        printf("\n4. Exit\n\n");
+        printf(" Choose : ");
+        scanf("%d", &option);
+        fgetc(stdin);
+        switch (option)
         {
-            fgetc(stdin);
-            printf("\n\n");
-            printf("Please enter the item %d name :\t ", i + 1);
-            fgets(order.item[i].item_one, 50, stdin);
-            order.item[i].item_one[strlen(order.item[i].item_one) - 1] = 0;
-            printf("Please Enter the quantity : \t");
-            scanf("%d", &order.item[i].quantity);
-            printf("Please Enter the unit price : \t");
-            scanf("%f", &order.item[i].price);
-            total += order.item[i].quantity * order.item[i].price;
+            // This is for option one
+        case 1:
+            system("clear");
+            printf("\nPlease Enter the name of the customer : ");
+            fgets(order.customer, 50, stdin);
+            order.customer[strlen(order.customer) - 1] = 0;
+            strcpy(order.date, __DATE__);
+            printf("\nPlease Enter the number of items : ");
+            scanf("%d", &numberOfItems);
+            order.itemNum = numberOfItems;
+            for (int i = 0; i < numberOfItems; i++)
+            {
+                fgetc(stdin);
+                printf("\n\n");
+                printf("Please enter the item %d name :\t ", i + 1);
+                fgets(order.item[i].item_one, 50, stdin);
+                order.item[i].item_one[strlen(order.item[i].item_one) - 1] = 0;
+                printf("Please Enter the quantity : \t");
+                scanf("%d", &order.item[i].quantity);
+                printf("Please Enter the unit price : \t");
+                scanf("%f", &order.item[i].price);
+                total += order.item[i].quantity * order.item[i].price;
+            }
+
+            showBillDetails(order.customer, order.date);
+            for (int i = 0; i < order.itemNum; i++)
+            {
+                showBillBody(order.item[i].item_one, order.item[i].quantity, order.item[i].price);
+            }
+            endBillDetails(total);
+            printf("\nDo You want to save the invoice?y/n] :  \t");
+            scanf("%s", &saveBill);
+            if (saveBill == 'y')
+            {
+                file = fopen("RestaurantBill.dat", "a+");
+                fwrite(&order, sizeof(struct orders), 1, file);
+                if (&fwrite != 0)
+                {
+                    printf("\nSuccesfully Saved");
+                }
+                else
+                {
+                    printf("\nError in saving");
+                }
+                fclose(file);
+            }
+
+            break;
+            // This is for option two
+        case 2:
+            system("clear");
+            file = fopen("RestaurantBill.dat", "r");
+            printf("\t-----------Your invoices are :-------------\n");
+            while (fread(&order_b, sizeof(struct orders), 1, file))
+            {
+                showBillDetails(order_b.customer, order_b.date);
+                for (int i = 0; i < order_b.itemNum; i++)
+                {
+                    showBillBody(order_b.item[i].item_one, order_b.item[i].quantity, order_b.item[i].price);
+                    total_2 += order_b.item[i].quantity * order_b.item[i].price;
+                }
+                endBillDetails(total_2);
+            }
+            fclose(file);
+            break;
+            // This is for option three
+        case 3:
+
+            printf("\nEnter the name of the customer: \t");
+            fgets(name, 50, stdin);
+            name[strlen(name) - 1] = 0;
+            system("clear");
+            file = fopen("RestaurantBill.dat", "r");
+            printf("\t-----------Your invoice of %s-------------\n", name);
+            while (fread(&order_b, sizeof(struct orders), 1, file))
+            {
+                if (!strcmp(order_b.customer, name))
+                {
+
+                    showBillDetails(order_b.customer, order_b.date);
+                    for (int i = 0; i < order_b.itemNum; i++)
+                    {
+                        showBillBody(order_b.item[i].item_one, order_b.item[i].quantity, order_b.item[i].price);
+                        total_2 += order_b.item[i].quantity * order_b.item[i].price;
+                    }
+                    endBillDetails(total_2);
+                    invoceFound = 1;
+                }
+            }
+            if (!invoceFound)
+            {
+                printf("\nSorry customer %s is not here", name);
+            }
+            fclose(file);
+            break;
+        case 4:
+            printf("\t\t Bye ");
+            exit(0);
+            break;
+        default:
+            printf("Invaild option");
+            break;
         }
-
-        showBillDetails(order.customer, order.date);
-        for (int i = 0; i < order.itemNum; i++)
-        {
-            showBillBody(order.item[i].item_one, order.item[i].quantity, order.item[i].price);
-        }
-
-        endBillDetails(total);
-        break;
-
-    default:
-        break;
+        printf("\nDo you want to check again?[y/n] : \t");
+        scanf("%s", &continue_again);
     }
-
+    printf("\t\t Bye ");
     printf("\n\n");
 
     return 0;
